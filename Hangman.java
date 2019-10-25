@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.Box;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Hangman extends JPanel {
 	
@@ -26,22 +28,74 @@ public class Hangman extends JPanel {
 	
 	private JPanel imagePanel; // displays the hangman image on screen
 	private JLabel wordLabel; // displays the word user is trying to guess
+	private JTextField textInputBox; 
+	private JButton newGameButton;
+	private String message = "welcome to hangman";
+	private HangmanGame game;
 	
 	public Hangman() {
+		game = new HangmanGame(6);
 		//setPreferredSize(new Dimension(500,500));
 		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		setBackground(Color.GREEN);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		imagePanel = new ImagePanel();
 		add(imagePanel);
-		wordLabel = new JLabel("_ _ a_ _ b _ _ e");
+		wordLabel = new JLabel(game.getGuessString());
 		wordLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 		add(wordLabel);
 		add(Box.createRigidArea(new Dimension(0,10)));
-		add(new JLabel("Enter Guess"));
-		add(new JTextField(5));
+		add(new JLabel("Guess letter (press enter to submit)"));
+		textInputBox = new JTextField(5);
+		textInputBox.addActionListener(new InputListener());
+		add(textInputBox);
 		add(Box.createRigidArea(new Dimension(0,10)));
-		add(new JButton("new game"));
+		newGameButton = new JButton("new game");
+		newGameButton.addActionListener(new NewGameButtonListener());
+		newGameButton.setEnabled(false);
+		add(newGameButton);
+	}
+	
+	private class InputListener implements ActionListener {
+		// called when user presses enter key in text input box
+		public void actionPerformed(ActionEvent e) {
+			if (game.isGameOver()) {
+				message = "game is over. Start a new game to play again";
+				repaint();
+				return;
+			}
+			String userInput = textInputBox.getText();
+			textInputBox.setText("");
+			// check to make sure text is valid
+			
+			//System.out.println("user pressed enter");
+			game.makeGuess('d');
+			if (game.isGameOver()) {
+				if (game.hasWon()) {
+					message = "congratulations, you win!";
+				} else {
+					message = "sorry, you lose. The word was: " + game.getWordToGuess() + "\n press new game to play again";
+				}
+				textInputBox.setEnabled(false);
+				newGameButton.setEnabled(true);
+			}
+			repaint();
+		}
+	}
+	
+	private class NewGameButtonListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if (!game.isGameOver()) {
+				message = "you still have to finish this game first";
+				repaint();
+				return;
+			}
+			game = new HangmanGame(6);
+			wordLabel.setText(game.getGuessString());
+			newGameButton.setEnabled(false);
+			textInputBox.setEnabled(true);
+			textInputBox.setText("");
+		}
 	}
 	
 	private class ImagePanel extends JPanel {
@@ -55,7 +109,30 @@ public class Hangman extends JPanel {
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			// decide what image to draw based on the outer class's current state
+			
+			// draw gallows
+			int numIncorrectGuesses = game.getNumIncorrectGuesses();
+			if (numIncorrectGuesses >= 1) {
+				// draw head
+			}
+			if (numIncorrectGuesses >= 2) {
+				// draw torso
+			}
+			if (numIncorrectGuesses >= 3) {
+				// draw left arm
+			}
+			if (numIncorrectGuesses >= 4) {
+				// draw right arm
+			}
+			if (numIncorrectGuesses >= 5) {
+				// draw left leg
+			}
+			if (numIncorrectGuesses == 6) {
+				// draw right leg
+			}
+			
+			// draw message at bottom of screen
+			g.drawString(message,20,200);
 		}
 	}
 }
