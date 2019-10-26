@@ -1,23 +1,25 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.Dimension;
-import javax.swing.BoxLayout;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Color;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
-import javax.swing.Box;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.BasicStroke;
+import java.awt.RenderingHints;
 
 public class HangmanGUI extends JPanel {
 	
 	public static void main(String[] args) {
 		JFrame window = new JFrame("Hangman");
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		window.setResizable(false);
 		HangmanGUI content = new HangmanGUI();
 		window.setContentPane(content);
 		window.pack();
@@ -35,26 +37,31 @@ public class HangmanGUI extends JPanel {
 	public HangmanGUI() {
 		game = new HangmanGame(6); // start the player in a new game when GUI is created
 		
-		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		setBackground(Color.GREEN);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		//setBackground(Color.GREEN);
+		setLayout(null); // panel does not use a layout manager, all components are positioned manually
+		setPreferredSize(new Dimension(320, 500));
 		
+		// create components
+		ImagePanel imagePanel = new ImagePanel();
 		wordLabel = new JLabel(game.getGuessString());
 		wordLabel.setFont(new Font("Serif", Font.PLAIN, 20));
-		
+		//wordLabel.setOpaque(true);
+		//wordLabel.setBackground(Color.BLUE);
 		textInputBox = new JTextField(5);
 		textInputBox.addActionListener(new TextInputBoxListener());
-		
 		newGameButton = new JButton("New Game");
 		newGameButton.addActionListener(new NewGameButtonListener());
 		newGameButton.setEnabled(false);
-		
-		add(new ImagePanel());
+		// set bounds
+		imagePanel.setBounds(10,10,300,300);
+		wordLabel.setBounds(10, 320, 300, 50);
+		textInputBox.setBounds(10,380,100,20);
+		newGameButton.setBounds(10,420,100,50);
+		// add components to panel
+		add(imagePanel);
 		add(wordLabel);
-		add(Box.createRigidArea(new Dimension(0,10)));
-		add(new JLabel("Guess letter (press enter to submit)"));
+		//add(new JLabel("Guess letter (press enter to submit)"));
 		add(textInputBox);
-		add(Box.createRigidArea(new Dimension(0,10)));
 		add(newGameButton);
 	}
 	
@@ -62,9 +69,9 @@ public class HangmanGUI extends JPanel {
 	private class TextInputBoxListener implements ActionListener {
 		// called when user presses enter key in the text input box
 		public void actionPerformed(ActionEvent e) {
-			// don't let the player make guesses if the game is over. This should
+			// don't let the player make guesses if the game is over. This situation should
 			// not be able to occur anyway because the textInputBox is disabled when
-			// the game is over but just in case.
+			// the game is over.
 			if (game.isGameOver()) {
 				message = "game is over. Start a new game to play again";
 				repaint();
@@ -81,19 +88,15 @@ public class HangmanGUI extends JPanel {
 				return;
 			}
 			
+			// make the guess and update state of wordLabel
 			game.makeGuess(playerGuess.charAt(0));
 			wordLabel.setText(game.getGuessString());
 			message = "";
-			if (game.isGameOver()) {
-				if (game.hasWon()) {
-					message = "congratulations, you win!";
-				} else {
-					message = "sorry, you lose. The word was: " + game.getWordToGuess();
-				}
-				textInputBox.setEnabled(false);
-				newGameButton.setEnabled(true);
-			}
 			repaint();
+			
+			if (game.isGameOver()) {
+				doGameOver();
+			}
 		}
 	}
 	
@@ -102,21 +105,37 @@ public class HangmanGUI extends JPanel {
 		// called when user clicks on the new game button
 		public void actionPerformed(ActionEvent e) {
 			// don't let the player start a new game if there is already a game in progress.
-			// This should not be able to occur anyway because the newGameButton is disabled when
-			// the game is in progress but just in case.
+			// This situation should not be able to occur anyway because the newGameButton is disabled when
+			// the game is in progress.
 			if (!game.isGameOver()) {
 				message = "you still have to finish this game first";
 				repaint();
 				return;
 			}
-			game = new HangmanGame(6);
-			wordLabel.setText(game.getGuessString());
-			newGameButton.setEnabled(false);
-			textInputBox.setEnabled(true);
-			textInputBox.setText("");
-			message = "";
-			repaint();
+			doNewGame();
 		}
+	}
+	
+	// set up the GUI ready for a new game
+	private void doNewGame() {
+		game = new HangmanGame(6);
+		wordLabel.setText(game.getGuessString());
+		newGameButton.setEnabled(false);
+		textInputBox.setEnabled(true);
+		textInputBox.setText("");
+		message = "";
+		repaint();
+	}
+	
+	private void doGameOver() {
+		if (game.hasWon()) {
+			message = "congratulations, you win!";
+		} else {
+			message = "sorry, you lose. The word was: " + game.getWordToGuess();
+		}
+		textInputBox.setEnabled(false);
+		newGameButton.setEnabled(true);
+		repaint();
 	}
 	
 	// this nested panel draws the hangman image and message
@@ -124,40 +143,51 @@ public class HangmanGUI extends JPanel {
 	private class ImagePanel extends JPanel {
 		
 		public ImagePanel() {
-			setPreferredSize(new Dimension(300,300));
-			setBackground(Color.RED);
+			//setBackground(Color.RED);
 			setBorder(BorderFactory.createLineBorder(Color.black));
 		}
 		
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			
-			// draw gallows
-			int numIncorrectGuesses = game.getIncorrectGuessesMade();
+			Graphics2D g2 = (Graphics2D) g;
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                          RenderingHints.VALUE_ANTIALIAS_ON);
+			drawGallows(g2);
+			drawHangman(g2, game.getIncorrectGuessesMade());
+			// draw message at bottom of screen
+			g.drawString(message,10,280);
+		}
+		
+		private void drawGallows(Graphics2D g2) {
+			g2.setStroke(new BasicStroke(10));
+			g2.drawLine(50,250,250,250);
+			g2.drawLine(200,250,200,50);
+			g2.setStroke(new BasicStroke(5));
+			g2.drawLine(200,50,100,50);
+			g2.drawLine(100,50,100,70);
+		}
+		
+		private void drawHangman(Graphics2D g, int numIncorrectGuesses) {
+			g.setStroke(new BasicStroke(2));
 			if (numIncorrectGuesses >= 1) {
-				// draw head
+				g.drawOval(90,70,20,20); // draw head
 			}
 			if (numIncorrectGuesses >= 2) {
-				// draw torso
+				g.drawLine(100,90,100,130); // draw torso
 			}
 			if (numIncorrectGuesses >= 3) {
-				// draw left arm
+				g.drawLine(100,110,80,85); // draw left arm
 			}
 			if (numIncorrectGuesses >= 4) {
-				// draw right arm
+				g.drawLine(100,110,120,85); // draw right arm
 			}
 			if (numIncorrectGuesses >= 5) {
-				// draw left leg
+				g.drawLine(100,130,80,150); // draw left leg
 			}
 			if (numIncorrectGuesses == 6) {
-				// draw right leg
+				g.drawLine(100,130,120,150); // draw right leg
 			}
-			
-			g.drawString("" + numIncorrectGuesses, 20, 100);
-			
-			// draw message at bottom of screen
-			g.drawString(message,20,200);
 		}
 	}
 }
