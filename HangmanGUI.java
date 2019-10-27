@@ -77,15 +77,18 @@ public class HangmanGUI extends JPanel {
 			// not be able to occur anyway because the textInputBox is disabled when
 			// the game is over.
 			if (game.isGameOver()) {
-				message = "game is over. Start a new game to play again";
+				message = "Game is over. Start a new game to play again";
 				repaint();
 				return;
 			}
 			
-			// get the player's guess
+			// get the player's guess and perform input validation
 			String playerGuess = textInputBox.getText();
-			textInputBox.setText("");
-			// check to make sure text is valid e.g. only one char entered, not a digit etc
+			if (!inputIsValid(playerGuess)) {
+				repaint();
+				return;
+			}
+			
 			if (game.hasGuessedAlready(playerGuess.charAt(0))) {
 				message = "you have already guessed this letter";
 				repaint();
@@ -97,12 +100,26 @@ public class HangmanGUI extends JPanel {
 			wordLabel.setText(game.getGuessString());
 			guessesMadeLabel.setText("Guesses made: " + game.getGuessesMade());
 			message = "";
+			textInputBox.setText("");
 			repaint();
 			
 			if (game.isGameOver()) {
 				doGameOver();
 			}
 		}
+	}
+	
+	private boolean inputIsValid(String str) {
+		if (str.length() != 1) {
+			message = "enter 1 letter";
+			return false;
+		}
+		// if here, string contains only 1 character, check to make sure it is a letter
+		if (!Character.isLetter(str.charAt(0))) {
+			message = "enter a letter";
+			return false;
+		}
+		return true;
 	}
 	
 	// listener for the newGameButton
