@@ -36,7 +36,7 @@ public class HangmanGUI extends JPanel {
 	private HangmanGame game;
 	
 	public HangmanGUI() {
-		game = new HangmanGame(6); // start the player in a new game when GUI is created
+		game = new HangmanGame(10); // start the player in a new game when GUI is created
 		
 		//setBackground(Color.GREEN);
 		setLayout(null); // panel does not use a layout manager, all components are positioned manually
@@ -140,7 +140,7 @@ public class HangmanGUI extends JPanel {
 	
 	// set up the GUI ready for a new game
 	private void doNewGame() {
-		game = new HangmanGame(6);
+		game = new HangmanGame(10);
 		wordLabel.setText(game.getGuessString());
 		guessesMadeLabel.setText("Guesses made: ");
 		newGameButton.setEnabled(false);
@@ -176,39 +176,43 @@ public class HangmanGUI extends JPanel {
 			Graphics2D g2 = (Graphics2D) g;
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                           RenderingHints.VALUE_ANTIALIAS_ON);
-			drawGallows(g2);
 			drawHangman(g2, game.getIncorrectGuessesMade());
 			// draw message at bottom of screen
 			g.drawString(message,10,280);
 		}
 		
-		private void drawGallows(Graphics2D g2) {
-			g2.setStroke(new BasicStroke(10));
-			g2.drawLine(50,250,250,250);
-			g2.drawLine(200,250,200,50);
-			g2.setStroke(new BasicStroke(5));
-			g2.drawLine(200,50,100,50);
-			g2.drawLine(100,50,100,70);
-		}
-		
 		private void drawHangman(Graphics2D g, int numIncorrectGuesses) {
-			g.setStroke(new BasicStroke(2));
 			if (numIncorrectGuesses >= 1) {
-				g.drawOval(90,70,20,20); // draw head
+				g.setStroke(new BasicStroke(10));
+				g.drawLine(50,250,250,250); // draw base of gallows
 			}
 			if (numIncorrectGuesses >= 2) {
-				g.drawLine(100,90,100,130); // draw torso
+				g.drawLine(200,250,200,50); // draw vertical beam of gallows
 			}
 			if (numIncorrectGuesses >= 3) {
-				g.drawLine(100,110,80,85); // draw left arm
+				g.setStroke(new BasicStroke(5));
+				g.drawLine(200,50,100,50); // draw horizontal beam of gallows
 			}
 			if (numIncorrectGuesses >= 4) {
-				g.drawLine(100,110,120,85); // draw right arm
+				g.drawLine(100,50,100,70); // draw vertical beam hangman is attached to
 			}
 			if (numIncorrectGuesses >= 5) {
+				g.setStroke(new BasicStroke(2));
+				g.drawOval(90,70,20,20); // draw hangman's head
+			}
+			if (numIncorrectGuesses >= 6) {
+				g.drawLine(100,90,100,130); // draw torso
+			}
+			if (numIncorrectGuesses >= 7) {
+				g.drawLine(100,110,80,85); // draw left arm
+			}
+			if (numIncorrectGuesses >= 8) {
+				g.drawLine(100,110,120,85); // draw right arm
+			}
+			if (numIncorrectGuesses >= 9) {
 				g.drawLine(100,130,80,150); // draw left leg
 			}
-			if (numIncorrectGuesses == 6) {
+			if (numIncorrectGuesses == 10) {
 				g.drawLine(100,130,120,150); // draw right leg
 			}
 		}
