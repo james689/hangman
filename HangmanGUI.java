@@ -29,6 +29,7 @@ public class HangmanGUI extends JPanel {
 	// --------------------------------------
 	
 	private JLabel wordLabel; // displays the word the player is trying to guess
+	private JLabel guessesMadeLabel; // displays all guesses player has made
 	private JTextField textInputBox; 
 	private JButton newGameButton;
 	private String message = "welcome to hangman";
@@ -47,6 +48,7 @@ public class HangmanGUI extends JPanel {
 		wordLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 		//wordLabel.setOpaque(true);
 		//wordLabel.setBackground(Color.BLUE);
+		guessesMadeLabel = new JLabel("Guesses made: ");
 		textInputBox = new JTextField(5);
 		textInputBox.addActionListener(new TextInputBoxListener());
 		newGameButton = new JButton("New Game");
@@ -54,12 +56,14 @@ public class HangmanGUI extends JPanel {
 		newGameButton.setEnabled(false);
 		// set bounds
 		imagePanel.setBounds(10,10,300,300);
-		wordLabel.setBounds(10, 320, 300, 50);
+		wordLabel.setBounds(10, 310, 300, 50);
+		guessesMadeLabel.setBounds(10, 350, 300, 20);
 		textInputBox.setBounds(10,380,100,20);
 		newGameButton.setBounds(10,420,100,50);
 		// add components to panel
 		add(imagePanel);
 		add(wordLabel);
+		add(guessesMadeLabel);
 		//add(new JLabel("Guess letter (press enter to submit)"));
 		add(textInputBox);
 		add(newGameButton);
@@ -91,6 +95,7 @@ public class HangmanGUI extends JPanel {
 			// make the guess and update state of wordLabel
 			game.makeGuess(playerGuess.charAt(0));
 			wordLabel.setText(game.getGuessString());
+			guessesMadeLabel.setText("Guesses made: " + game.getGuessesMade());
 			message = "";
 			repaint();
 			
@@ -120,6 +125,7 @@ public class HangmanGUI extends JPanel {
 	private void doNewGame() {
 		game = new HangmanGame(6);
 		wordLabel.setText(game.getGuessString());
+		guessesMadeLabel.setText("Guesses made: ");
 		newGameButton.setEnabled(false);
 		textInputBox.setEnabled(true);
 		textInputBox.setText("");

@@ -1,5 +1,7 @@
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 // This class represents the hangman game logic
 public class HangmanGame {
@@ -39,6 +41,12 @@ public class HangmanGame {
 	
 	public String getWordToGuess() {
 		return wordToGuess;
+	}
+	
+	public List<Character> getGuessesMade() {
+		List<Character> ret = new ArrayList<>();
+		ret.addAll(guessesMade);
+		return ret;
 	}
 	
 	public void makeGuess(char letter) {
