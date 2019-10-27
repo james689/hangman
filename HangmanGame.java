@@ -2,6 +2,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 // This class represents the hangman game logic
 public class HangmanGame {
@@ -12,11 +16,32 @@ public class HangmanGame {
 											// can be set in the constructor, to make the game easier or more difficult.
 	private Set<Character> guessesMade; 	// all guesses made so far
 	
+	private static final List<String> WORDS_LIST = getWordsList();
+	
 	public HangmanGame(int incorrectGuessesAllowed) {
 		this.incorrectGuessesAllowed = incorrectGuessesAllowed;
-		wordToGuess = "hippo"; // in reality random word will be picked from dictionary here
+		System.out.println("in HangmanGame constructor. WORDS_LIST.size() = " + WORDS_LIST.size());
+		Random rand = new Random(); 
+        wordToGuess = WORDS_LIST.get(rand.nextInt(WORDS_LIST.size())); 
 		incorrectGuessesMade = 0;
 		guessesMade = new HashSet<>();
+	}
+	
+	private static List<String> getWordsList() {
+		List<String> words = new ArrayList<String>();
+		File file = new File("words_alpha.txt");
+		
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+			while ((line = br.readLine()) != null) {
+				words.add(line);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		
+		return words;
 	}
 	
 	// if each letter in wordToGuess is contained within the guessesMade set
