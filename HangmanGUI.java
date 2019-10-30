@@ -34,9 +34,10 @@ public class HangmanGUI extends JPanel {
 	private JButton newGameButton;
 	private String message = "welcome to hangman";
 	private HangmanGame game;
+	private static final int NUM_INCORRECT_GUESSES_ALLOWED = 9;
 	
 	public HangmanGUI() {
-		game = new HangmanGame(10); // start the player in a new game when GUI is created
+		game = new HangmanGame(NUM_INCORRECT_GUESSES_ALLOWED); // start the player in a new game when GUI is created
 		
 		//setBackground(Color.GREEN);
 		setLayout(null); // panel does not use a layout manager, all components are positioned manually
@@ -140,7 +141,7 @@ public class HangmanGUI extends JPanel {
 	
 	// set up the GUI ready for a new game
 	private void doNewGame() {
-		game = new HangmanGame(10);
+		game = new HangmanGame(NUM_INCORRECT_GUESSES_ALLOWED);
 		wordLabel.setText(game.getGuessString());
 		guessesMadeLabel.setText("Guesses made: ");
 		newGameButton.setEnabled(false);
@@ -176,7 +177,7 @@ public class HangmanGUI extends JPanel {
 			Graphics2D g2 = (Graphics2D) g;
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                           RenderingHints.VALUE_ANTIALIAS_ON);
-			drawHangman(g2, game.getIncorrectGuessesMade());
+			drawHangman(g2, game.getNumIncorrectGuessesMade());
 			// draw message at bottom of screen
 			g.drawString(message,10,280);
 		}
