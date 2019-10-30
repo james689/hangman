@@ -28,27 +28,25 @@ public class HangmanGUI extends JPanel {
 	
 	// --------------------------------------
 	
-	private JLabel wordLabel; // displays the word the player is trying to guess
-	private JLabel guessesMadeLabel; // displays all guesses player has made
-	private JTextField textInputBox; 
-	private JButton newGameButton;
-	private String message = "welcome to hangman";
+	private JLabel wordLabel; 			// displays the word the player is trying to guess
+	private JLabel guessesMadeLabel; 	// displays all guesses player has made
+	private JTextField textInputBox; 	// where the player enters their guesses
+	private JButton newGameButton;		// starts a new game when clicked
+	
+	private String message = "Welcome to hangman";
 	private HangmanGame game;
 	private static final int NUM_INCORRECT_GUESSES_ALLOWED = 9;
 	
 	public HangmanGUI() {
 		game = new HangmanGame(NUM_INCORRECT_GUESSES_ALLOWED); // start the player in a new game when GUI is created
 		
-		//setBackground(Color.GREEN);
-		setLayout(null); // panel does not use a layout manager, all components are positioned manually
+		setLayout(null); // HangmanGUI panel does not use a layout manager, all components are positioned manually
 		setPreferredSize(new Dimension(320, 500));
 		
 		// create components
 		ImagePanel imagePanel = new ImagePanel();
 		wordLabel = new JLabel(game.getGuessString());
 		wordLabel.setFont(new Font("Serif", Font.PLAIN, 20));
-		//wordLabel.setOpaque(true);
-		//wordLabel.setBackground(Color.BLUE);
 		guessesMadeLabel = new JLabel("Guesses made: ");
 		textInputBox = new JTextField(5);
 		textInputBox.addActionListener(new TextInputBoxListener());
@@ -65,7 +63,6 @@ public class HangmanGUI extends JPanel {
 		add(imagePanel);
 		add(wordLabel);
 		add(guessesMadeLabel);
-		//add(new JLabel("Guess letter (press enter to submit)"));
 		add(textInputBox);
 		add(newGameButton);
 	}
@@ -123,6 +120,17 @@ public class HangmanGUI extends JPanel {
 		return true;
 	}
 	
+	private void doGameOver() {
+		if (game.hasWon()) {
+			message = "congratulations, you win!";
+		} else {
+			message = "sorry, you lose. The word was: " + game.getWordToGuess();
+		}
+		textInputBox.setEnabled(false);
+		newGameButton.setEnabled(true);
+		repaint();
+	}
+	
 	// listener for the newGameButton
 	private class NewGameButtonListener implements ActionListener {
 		// called when user clicks on the new game button
@@ -151,23 +159,11 @@ public class HangmanGUI extends JPanel {
 		repaint();
 	}
 	
-	private void doGameOver() {
-		if (game.hasWon()) {
-			message = "congratulations, you win!";
-		} else {
-			message = "sorry, you lose. The word was: " + game.getWordToGuess();
-		}
-		textInputBox.setEnabled(false);
-		newGameButton.setEnabled(true);
-		repaint();
-	}
-	
 	// this nested panel draws the hangman image and message
-	// to the screen.
+	// to the screen. It's size and position is set in the HangmanGUI constructor.
 	private class ImagePanel extends JPanel {
 		
 		public ImagePanel() {
-			//setBackground(Color.RED);
 			setBorder(BorderFactory.createLineBorder(Color.black));
 		}
 		
@@ -178,7 +174,6 @@ public class HangmanGUI extends JPanel {
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                           RenderingHints.VALUE_ANTIALIAS_ON);
 			drawHangman(g2, game.getNumIncorrectGuessesMade());
-			// draw message at bottom of screen
 			g.drawString(message,10,280);
 		}
 		
@@ -192,7 +187,7 @@ public class HangmanGUI extends JPanel {
 			}
 			if (numIncorrectGuesses >= 3) {
 				g.setStroke(new BasicStroke(5));
-				g.drawLine(200,50,100,50); // draw horizontal beam of gallows
+				g.drawLine(200,50,100,50); // draw horizontal top beam of gallows
 			}
 			if (numIncorrectGuesses >= 4) {
 				g.drawLine(100,50,100,70); // draw vertical beam hangman is attached to
