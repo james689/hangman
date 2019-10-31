@@ -13,13 +13,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.BasicStroke;
 import java.awt.RenderingHints;
+import javax.swing.BoxLayout;
+import java.awt.Component;
+import javax.swing.Box;
+import java.awt.FlowLayout;
 
 public class HangmanGUI extends JPanel {
 	
 	public static void main(String[] args) {
 		JFrame window = new JFrame("Hangman");
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		window.setResizable(false);
 		HangmanGUI content = new HangmanGUI();
 		window.setContentPane(content);
 		window.pack();
@@ -37,33 +40,47 @@ public class HangmanGUI extends JPanel {
 	private HangmanGame game;
 	private static final int NUM_INCORRECT_GUESSES_ALLOWED = 9;
 	
+	// constructor creates the GUI components and lays them out
 	public HangmanGUI() {
 		game = new HangmanGame(NUM_INCORRECT_GUESSES_ALLOWED); // start the player in a new game when GUI is created
 		
-		setLayout(null); // HangmanGUI panel does not use a layout manager, all components are positioned manually
-		setPreferredSize(new Dimension(320, 500));
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); 
+		setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		
-		// create components
 		ImagePanel imagePanel = new ImagePanel();
+		imagePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
 		wordLabel = new JLabel(game.getGuessString());
 		wordLabel.setFont(new Font("Serif", Font.PLAIN, 20));
+		wordLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
 		guessesMadeLabel = new JLabel("Guesses made: ");
+		guessesMadeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+		JPanel enterGuessPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		enterGuessPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		textInputBox = new JTextField(5);
+		textInputBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+		textInputBox.setMaximumSize(new Dimension(50,50));
 		textInputBox.addActionListener(new TextInputBoxListener());
+		JLabel enterGuessLabel = new JLabel("Enter guess: ");
+		enterGuessLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		enterGuessPanel.add(enterGuessLabel);
+		enterGuessPanel.add(textInputBox);
+		
 		newGameButton = new JButton("New Game");
+		newGameButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 		newGameButton.addActionListener(new NewGameButtonListener());
 		newGameButton.setEnabled(false);
-		// set bounds
-		imagePanel.setBounds(10,10,300,300);
-		wordLabel.setBounds(10, 310, 300, 50);
-		guessesMadeLabel.setBounds(10, 350, 300, 20);
-		textInputBox.setBounds(10,380,100,20);
-		newGameButton.setBounds(10,420,100,50);
+		
 		// add components to panel
 		add(imagePanel);
 		add(wordLabel);
+		add(Box.createRigidArea(new Dimension(0,10)));
 		add(guessesMadeLabel);
-		add(textInputBox);
+		add(Box.createRigidArea(new Dimension(0,10)));
+		add(enterGuessPanel);
+		add(Box.createRigidArea(new Dimension(0,10)));
 		add(newGameButton);
 	}
 	
@@ -164,6 +181,7 @@ public class HangmanGUI extends JPanel {
 	private class ImagePanel extends JPanel {
 		
 		public ImagePanel() {
+			setPreferredSize(new Dimension(300,300));
 			setBorder(BorderFactory.createLineBorder(Color.black));
 		}
 		
