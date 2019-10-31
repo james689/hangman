@@ -17,6 +17,11 @@ import javax.swing.BoxLayout;
 import java.awt.Component;
 import javax.swing.Box;
 import java.awt.FlowLayout;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.List;
+import java.util.ArrayList;
 
 public class HangmanGUI extends JPanel {
 	
@@ -38,11 +43,13 @@ public class HangmanGUI extends JPanel {
 	
 	private String message = "Welcome to hangman";
 	private HangmanGame game;
+	private List<String> wordsList;
 	private static final int NUM_INCORRECT_GUESSES_ALLOWED = 9;
 	
 	// constructor creates the GUI components and lays them out
 	public HangmanGUI() {
-		game = new HangmanGame(NUM_INCORRECT_GUESSES_ALLOWED); // start the player in a new game when GUI is created
+		wordsList = getWordsList();
+		game = new HangmanGame(wordsList, NUM_INCORRECT_GUESSES_ALLOWED); // start the player in a new game when GUI is created
 		
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); 
 		setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
@@ -73,7 +80,7 @@ public class HangmanGUI extends JPanel {
 		newGameButton.addActionListener(new NewGameButtonListener());
 		newGameButton.setEnabled(false);
 		
-		// add components to panel
+		// add components to panel, with some spacing in between them
 		add(imagePanel);
 		add(wordLabel);
 		add(Box.createRigidArea(new Dimension(0,10)));
@@ -139,9 +146,9 @@ public class HangmanGUI extends JPanel {
 	
 	private void doGameOver() {
 		if (game.hasWon()) {
-			message = "congratulations, you win!";
+			message = "Congratulations, you win!";
 		} else {
-			message = "sorry, you lose. The word was: " + game.getWordToGuess();
+			message = "Sorry, you lose. The word was: " + game.getWordToGuess();
 		}
 		textInputBox.setEnabled(false);
 		newGameButton.setEnabled(true);
@@ -166,7 +173,7 @@ public class HangmanGUI extends JPanel {
 	
 	// set up the GUI ready for a new game
 	private void doNewGame() {
-		game = new HangmanGame(NUM_INCORRECT_GUESSES_ALLOWED);
+		game = new HangmanGame(wordsList, NUM_INCORRECT_GUESSES_ALLOWED);
 		wordLabel.setText(game.getGuessString());
 		guessesMadeLabel.setText("Guesses made: ");
 		newGameButton.setEnabled(false);
@@ -176,8 +183,7 @@ public class HangmanGUI extends JPanel {
 		repaint();
 	}
 	
-	// this nested panel draws the hangman image and message
-	// to the screen. It's size and position is set in the HangmanGUI constructor.
+	// this nested panel draws the hangman image and message to the screen. 
 	private class ImagePanel extends JPanel {
 		
 		public ImagePanel() {
@@ -230,5 +236,23 @@ public class HangmanGUI extends JPanel {
 				g.drawLine(100,130,120,150); // draw right leg
 			}
 		}
+	}
+	
+	// loads a list of words from a file
+	private static List<String> getWordsList() {
+		List<String> words = new ArrayList<String>();
+		File file = new File("words_alpha.txt");
+		
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+			while ((line = br.readLine()) != null) {
+				words.add(line);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		
+		return words;
 	}
 }

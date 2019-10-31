@@ -3,11 +3,10 @@ import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
-// This class represents the hangman game logic
+// This class represents the hangman game logic. Once the HangmanGame is over, there
+// is no way to reset the state of the game, instead a new HangmanGame must be constructed.
+// To do: add some error checking for the constructor parameters.
 public class HangmanGame {
 	
 	private String wordToGuess; 			// the word the player has to guess 
@@ -15,14 +14,14 @@ public class HangmanGame {
 	private int numIncorrectGuessesAllowed; // number of incorrect guesses player is allowed to make before its game over. This
 											// value can be set in the constructor, to make the game easier or more difficult.
 	private Set<Character> guessesMade; 	// all guesses made so far
-	
-	private static final List<String> WORDS_LIST = getWordsList(); // the list of words the wordToGuess will be randomly chosen from
+	private List<String> wordsList; 		// the list of words the wordToGuess will be randomly chosen from
 	
 	// ----- public interface -------------
 	
-	public HangmanGame(int numIncorrectGuessesAllowed) {
+	public HangmanGame(List<String> wordsList, int numIncorrectGuessesAllowed) {
+		this.wordsList = wordsList;
 		this.numIncorrectGuessesAllowed = numIncorrectGuessesAllowed;
-        wordToGuess = WORDS_LIST.get(new Random().nextInt(WORDS_LIST.size())); 
+        wordToGuess = wordsList.get(new Random().nextInt(wordsList.size())); 
 		numIncorrectGuessesMade = 0;
 		guessesMade = new HashSet<>();
 	}
@@ -86,25 +85,5 @@ public class HangmanGame {
 			}
 		}
 		return sb.toString();
-	}
-	
-	// ----- private interface -------------
-	
-	// load the WORDS_LIST from a file
-	private static List<String> getWordsList() {
-		List<String> words = new ArrayList<String>();
-		File file = new File("words_alpha.txt");
-		
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(file));
-			String line;
-			while ((line = br.readLine()) != null) {
-				words.add(line);
-			}
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		
-		return words;
 	}
 }
